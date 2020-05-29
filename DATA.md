@@ -5,7 +5,8 @@
  - [x] Criar uma função do IAM para a função do Lambda
  - [] Criar funções lambda
   - [x] Função GetTools
-  - [] Função PostTools
+  - [x] Função PostTool
+  - [] Função DeleteTool
  - [x] Criar API Gateway
  - [x] Adicionar autorizador do Cognito ao API Gateway
 

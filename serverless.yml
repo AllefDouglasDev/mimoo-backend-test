@@ -10,6 +10,7 @@ provider:
       Action:
         - dynamodb:PutItem
         - dynamodb:Scan
+        - dynamodb:DeleteItem
       Resource: "*"
 
 functions:
@@ -27,6 +28,14 @@ functions:
       - http:
           path: tools
           method: POST
+          authorizer:
+            arn: arn:aws:cognito-idp:us-east-1:639472352266:userpool/us-east-1_WOylGIQ2H
+  deleteTool:
+    handler: 'tools/{id}/delete.handler'
+    events:
+      - http:
+          path: tools/{id}
+          method: DELETE
           authorizer:
             arn: arn:aws:cognito-idp:us-east-1:639472352266:userpool/us-east-1_WOylGIQ2H
 
