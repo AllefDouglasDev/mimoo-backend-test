@@ -1,0 +1,159 @@
+---
+swagger: "2.0"
+info:
+  version: "2020-05-29T08:07:12Z"
+  title: "dev-vuttr"
+host: "ebra2o7n0f.execute-api.us-east-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /tools:
+    get:
+      description: List created tools and filter if necessary
+      responses: {
+        "200": {
+          "description": "200 response",
+          "content": {
+              "application/json": {
+                "schema": {
+                    "$ref": "#/components/schemas/Empty"
+                }
+              }
+          }
+        }
+      }
+      security:
+      - 1_WOylGIQ2H: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:639472352266:function:vuttr-dev-getTools/invocations"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        type: "aws_proxy"
+        responses:
+          "default":
+            statusCode: "200"
+            responseTemplates: 
+              application/json: |
+                [
+                  {
+                    "id": "toolId"
+                    "title": "Example",
+                    "link": "https://example.com",
+                    "description": "Tool description example",
+                    "tags": [
+                      "tag1",
+                      "tag2",
+                      "tag3"
+                    ]
+                  }
+                ]
+    post:
+      description: Create a tool
+      parameters: [
+        {
+          "name": "title",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "link",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "description",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "tags",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      responses: {
+        "201": {
+          "description": "201 created",
+          "content": {
+              "application/json": {
+                "schema": {
+                    "$ref": "#/components/schemas/Empty"
+                }
+              }
+          }
+        }
+      }
+      security:
+      - 1_WOylGIQ2H: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:639472352266:function:vuttr-dev-postTool/invocations"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        type: "aws_proxy"
+        responses:
+          "default":
+            statusCode: "201"
+            responseTemplates: 
+              application/json: |
+                {
+                  "id": "toolId"
+                  "title": "Example",
+                  "link": "https://example.com",
+                  "description": "Tool description example",
+                  "tags": [
+                    "tag1",
+                    "tag2",
+                    "tag3"
+                  ]
+                }
+  /tools/{id}:
+    delete:
+      description: Delete a tool by id
+      parameters: [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+      ]
+      responses: {
+        "204": {
+          "description": "204 no content"
+        }
+      }
+      security:
+      - 1_WOylGIQ2H: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:639472352266:function:vuttr-dev-deleteTool/invocations"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        type: "aws_proxy"
+        responses:
+          "default":
+            statusCode: "204"
+securityDefinitions:
+  1_WOylGIQ2H:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "cognito_user_pools"
+    x-amazon-apigateway-authorizer:
+      providerARNs:
+      - "arn:aws:cognito-idp:us-east-1:639472352266:userpool/us-east-1_WOylGIQ2H"
+      type: "cognito_user_pools"
