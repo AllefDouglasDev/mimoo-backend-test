@@ -1,0 +1,51 @@
+service: vuttr
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Scan
+      Resource: "*"
+
+functions:
+  getTools:
+    handler: 'tools/get.handler'
+    events:
+      - http:
+          path: tools
+          method: GET
+          authorizer:
+            arn: arn:aws:cognito-idp:us-east-1:639472352266:userpool/us-east-1_WOylGIQ2H
+  postTool:
+    handler: 'tools/post.handler'
+    events:
+      - http:
+          path: tools
+          method: POST
+          authorizer:
+            arn: arn:aws:cognito-idp:us-east-1:639472352266:userpool/us-east-1_WOylGIQ2H
+
+resources:
+  Resources:
+    NewResource:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: toolsTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+  Outputs:
+    NewOutput:
+      Description: "Description for the output"
+      Value: "Some output value"
