@@ -1,4 +1,6 @@
 'use strict'
+const middy = require('middy')
+const { jsonBodyParser, httpErrorHandler, validator } = require('middy/middlewares')
 const randomBytes = require('crypto').randomBytes
 
 const AWS = require('aws-sdk')
@@ -7,16 +9,9 @@ AWS.config.update({ region: 'us-east-1' })
 
 const ddb = new AWS.DynamoDB.DocumentClient()
 
-module.exports.handler = async (event, context, callback) => {
+const postTool = async (event, context, callback) => {
   try {
-    const requestBody = JSON.parse(event.body)
-
-    if (!validateData(requestBody)) {
-      errorResponse('Incomplete fields', context.awsRequestId, callback, 400)
-      return
-    }
-
-    const tool = await createTool(requestBody)
+    const tool = await createTool(event.body)
     
     callback(null, {
       statusCode: 201,
@@ -29,21 +24,25 @@ module.exports.handler = async (event, context, callback) => {
   }
 }
 
-function createTool({ title, link, description, tags }) {
+async function createTool({ title, link, description, tags }) {
   const id = toUrlString(randomBytes(16))
+
+  const tool = {
+    id,
+    title,
+    link,
+    description,
+    tags,
+  }
 
   const params = {
     TableName: 'toolsTable',
-    Item: {
-      id,
-      title,
-      link,
-      description,
-      tags,
-    },
+    Item: tool,
   }
 
-  return ddb.put(params).promise()
+  await ddb.put(params).promise()
+
+  return tool
 }
 
 function toUrlString(buffer) {
@@ -72,3 +71,24 @@ function errorResponse(errorMessage, awsRequestId, callback, statusCode = 500) {
     }),
   })
 }
+
+const inputSchema = {
+  required: ['body'],
+  properties: {
+    body: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', minLength: 1 },
+        link: { type: 'string', minLength: 1 },
+        description: { type: 'string', minLength: 1 },
+        tags: { type: 'array' }
+      },
+      required: ['title', 'link', 'description', 'tags']
+    }
+  }
+}
+
+module.exports.handler = middy(postTool)
+  .use(jsonBodyParser())
+  .use(validator({ inputSchema }))
+  .use(httpErrorHandler())

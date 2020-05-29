@@ -1,4 +1,5 @@
 'use strict'
+const middy = require('middy')
 
 const AWS = require('aws-sdk')
 
@@ -6,7 +7,8 @@ AWS.config.update({ region: 'us-east-1' })
 
 const ddb = new AWS.DynamoDB.DocumentClient()
 
-module.exports.handler = async (event, context, callback) => {
+/** handler */
+const getTools = async (event, context, callback) => {
   try {
     const tag = event.queryStringParameters ? event.queryStringParameters.tag : ''
 
@@ -14,10 +16,7 @@ module.exports.handler = async (event, context, callback) => {
     
     callback(null, {
       statusCode: 200,
-      body: JSON.stringify(data),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      body: JSON.stringify(data)
     })
   } catch (error) {
     console.log(error)
@@ -49,3 +48,5 @@ function errorResponse(errorMessage, awsRequestId, callback) {
     }),
   })
 }
+
+module.exports.handler = middy(getTools)
